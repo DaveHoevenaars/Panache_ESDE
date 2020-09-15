@@ -1,9 +1,7 @@
 package org.ESDE;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import io.quarkus.panache.common.Sort;
+import org.springframework.web.bind.annotation.*;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import io.quarkus.hibernate.orm.panache.*;
 import javax.transaction.Transactional;
@@ -29,6 +27,30 @@ public class ExampleResource {
     @GetMapping("/person")
     public List<Person> getPeople()
     {
-        return Person.listAll();
+        return Person.listAll(Sort.by("firstName").and("lastName").ascending());
+    }
+
+    @GetMapping("/person/{id}")
+    public Person getPerson(@PathVariable("id") long id)
+    {
+        return Person.findById(id);
+    }
+    @DeleteMapping("/person/{id}")
+    @Transactional
+    public void deletePerson(@PathVariable("id") long id)
+    {
+        Person.delete("id",id);
+    }
+
+    @GetMapping("/person/name/{name}")
+    public List<Person> getPersonWithFirstname(@PathVariable("name") String name)
+    {
+        return Person.getPersonByFirstName(name);
+    }
+
+    @GetMapping("/person/name/{name}/{lname}")
+    public List<Person> getPersonWithFirstNameAndLastName(@PathVariable("name") String name, @PathVariable("lname") String lname)
+    {
+        return Person.getPersonByFirstNameAndLastName(name,lname);
     }
 }
