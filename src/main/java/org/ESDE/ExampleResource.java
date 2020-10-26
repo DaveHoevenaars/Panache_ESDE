@@ -1,5 +1,5 @@
 package org.ESDE;
-
+import org.jboss.logging.Logger;
 import io.quarkus.panache.common.Sort;
 import org.springframework.web.bind.annotation.*;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
@@ -11,6 +11,7 @@ import java.util.List;
 @RestController
 
 public class ExampleResource {
+    private static final Logger LOG = Logger.getLogger(ExampleResource.class);
 
     @GetMapping("/hello")
     public String hello() {
@@ -21,16 +22,18 @@ public class ExampleResource {
     @Transactional
     public void addPerson(Person person)
     {
+        LOG.info("Added person");
         Person.persist(person);
     }
 
-    @GetMapping("/person")
+    @GetMapping("/persons")
     public List<Person> getPeople()
     {
+        LOG.info("Getting persons");
         return Person.listAll(Sort.by("firstName").and("lastName").ascending());
     }
 
-    @GetMapping("/person/{id}")
+    @GetMapping("/persons/{id}")
     public Person getPerson(@PathVariable("id") long id)
     {
         return Person.findById(id);
@@ -42,15 +45,13 @@ public class ExampleResource {
         Person.delete("id",id);
     }
 
-    @GetMapping("/person/name/{name}")
-    public List<Person> getPersonWithFirstname(@PathVariable("name") String name)
-    {
+    @GetMapping("/persons/name/{name}")
+    public List<Person> getPersonWithFirstname(@PathVariable("name") String name) {
         return Person.getPersonByFirstName(name);
     }
 
-    @GetMapping("/person/name/{name}/{lname}")
-    public List<Person> getPersonWithFirstNameAndLastName(@PathVariable("name") String name, @PathVariable("lname") String lname)
-    {
+    @GetMapping("/persons/name/{name}/{lname}")
+    public List<Person> getPersonWithFirstNameAndLastName(@PathVariable("name") String name, @PathVariable("lname") String lname) {
         return Person.getPersonByFirstNameAndLastName(name,lname);
     }
 }
