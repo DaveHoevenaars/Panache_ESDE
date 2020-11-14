@@ -40,12 +40,14 @@ Specify the Group and Artifact ID of your project.
 
 Download your project
 
+# Active Record Pattern
+
 In the project create a new Package called "active_record"
 
 Create a class called "ARPerson" with the following specs:
 ```
 @Entity
-public class Person {
+public class ARPerson {
   public String fname;
   public String lname; 
 }
@@ -54,16 +56,16 @@ make it extend PanacheEntity
 
 Specify the following methods: 
 ```
-public static List<Person> getPersonByFirstName(String firstName){
-  return Person.find("firstName",firstName).list();
+public static List<ARPerson> getPersonByFirstName(String firstName){
+  return ARPerson.find("firstName",firstName).list();
 }
 
-public static List<Person> getPersonByLastName(String lastName){
-  return Person.find("firstName",firstName).list();
+public static List<ARPerson> getPersonByLastName(String lastName){
+  return ARPerson.find("firstName",firstName).list();
 }
 
-public static List<Person> getPersonByFirstNameAndLastName(String firstName, String lastName){
-    return Person.find("firstName = :fn and lastname = :ln", Parameters.with("fn",firstName).and("ln",lastName).map()).list();
+public static List<ARPerson> getPersonByFirstNameAndLastName(String firstName, String lastName){
+    return ARPerson.find("firstName = :fn and lastname = :ln", Parameters.with("fn",firstName).and("ln",lastName).map()).list();
 }
 ```
 
@@ -72,50 +74,57 @@ Modify the Example resource class to look like this:
 @RestController
 public class ExampleResource {
     private static final Logger LOG = Logger.getLogger(ExampleResource.class);
-
-    @GetMapping("/hello")
-    public String hello() {
-        return "hello";
-    }
-
+    
     @PostMapping("/person")
     @Transactional
-    public void addPerson(Person person)
+    public void addPerson(ARPerson person)
     {
         LOG.info("Added person");
-        Person.persist(person);
+        ARPerson.persist(person);
     }
 
     @GetMapping("/persons")
-    public List<Person> getPeople()
+    public List<ARPerson> getPeople()
     {
         LOG.info("Getting persons");
-        return Person.listAll(Sort.by("firstName").and("lastName").ascending());
+        return ARPerson.listAll(Sort.by("firstName").and("lastName").ascending());
     }
 
     @GetMapping("/persons/{id}")
-    public Person getPerson(@PathVariable("id") long id)
+    public ARPerson getPerson(@PathVariable("id") long id)
     {
-        return Person.findById(id);
+        return ARPerson.findById(id);
     }
     @DeleteMapping("/person/{id}")
     @Transactional
     public void deletePerson(@PathVariable("id") long id)
     {
-        Person.delete("id",id);
+        ARPerson.delete("id",id);
     }
 
     @GetMapping("/persons/name/{name}")
-    public List<Person> getPersonWithFirstname(@PathVariable("name") String name) {
-        return Person.getPersonByFirstName(name);
+    public List<ARPerson> getPersonWithFirstname(@PathVariable("name") String name) {
+        return ARPerson.getPersonByFirstName(name);
     }
 
     @GetMapping("/persons/name/{name}/{lname}")
-    public List<Person> getPersonWithFirstNameAndLastName(@PathVariable("name") String name, @PathVariable("lname") String lname) {
+    public List<ARPerson> getPersonWithFirstNameAndLastName(@PathVariable("name") String name, @PathVariable("lname") String lname) {
         return Person.getPersonByFirstNameAndLastName(name,lname);
     }
 }
 ```
 
+Play around with your program with postman!
+Send post requests by setting the body to :
+```
+{
+    "firstName": "YourFname",
+    "lastName": "YourName"
+}
+```
 
+# Repository pattern
+Create another package called repository
 
+create A class called 
+ 
