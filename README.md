@@ -40,7 +40,7 @@ Specify the Group and Artifact ID of your project.
 
 Download your project
 
-# Active Record Pattern
+### Active Record Pattern
 
 In the project create a new Package called "active_record"
 
@@ -123,7 +123,7 @@ Send post requests by setting the body to :
 }
 ```
 
-# Repository pattern
+### Repository pattern
 Create another package called repository
 
 create A class called 
