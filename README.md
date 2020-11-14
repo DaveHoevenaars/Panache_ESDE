@@ -28,3 +28,94 @@ Or, if you don't have GraalVM installed, you can run the native executable build
 You can then execute your native executable with: `./target/panache_final-1.0.0-SNAPSHOT-runner`
 
 If you want to learn more about building native executables, please consult https://quarkus.io/guides/building-native-image.
+
+## Exercises
+Go to https://code.quarkus.io/
+Select the following dependencies:
+- Quarkus extension for Spring Web API
+- Hibernate ORM with Panache
+- JDBC driver - H2
+
+Specify the Group and Artifact ID of your project.
+
+Download your project
+
+In the project create a new Package called "active_record"
+
+Create a class called "ARPerson" with the following specs:
+```
+@Entity
+public class Person {
+  public String fname;
+  public String lname; 
+}
+```
+make it extend PanacheEntity
+
+Specify the following methods: 
+```
+public static List<Person> getPersonByFirstName(String firstName){
+  return Person.find("firstName",firstName).list();
+}
+
+public static List<Person> getPersonByLastName(String lastName){
+  return Person.find("firstName",firstName).list();
+}
+
+public static List<Person> getPersonByFirstNameAndLastName(String firstName, String lastName){
+    return Person.find("firstName = :fn and lastname = :ln", Parameters.with("fn",firstName).and("ln",lastName).map()).list();
+}
+```
+
+Modify the Example resource class to look like this:
+```
+@RestController
+public class ExampleResource {
+    private static final Logger LOG = Logger.getLogger(ExampleResource.class);
+
+    @GetMapping("/hello")
+    public String hello() {
+        return "hello";
+    }
+
+    @PostMapping("/person")
+    @Transactional
+    public void addPerson(Person person)
+    {
+        LOG.info("Added person");
+        Person.persist(person);
+    }
+
+    @GetMapping("/persons")
+    public List<Person> getPeople()
+    {
+        LOG.info("Getting persons");
+        return Person.listAll(Sort.by("firstName").and("lastName").ascending());
+    }
+
+    @GetMapping("/persons/{id}")
+    public Person getPerson(@PathVariable("id") long id)
+    {
+        return Person.findById(id);
+    }
+    @DeleteMapping("/person/{id}")
+    @Transactional
+    public void deletePerson(@PathVariable("id") long id)
+    {
+        Person.delete("id",id);
+    }
+
+    @GetMapping("/persons/name/{name}")
+    public List<Person> getPersonWithFirstname(@PathVariable("name") String name) {
+        return Person.getPersonByFirstName(name);
+    }
+
+    @GetMapping("/persons/name/{name}/{lname}")
+    public List<Person> getPersonWithFirstNameAndLastName(@PathVariable("name") String name, @PathVariable("lname") String lname) {
+        return Person.getPersonByFirstNameAndLastName(name,lname);
+    }
+}
+```
+
+
+
