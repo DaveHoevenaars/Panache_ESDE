@@ -2,16 +2,14 @@ package org.ESDE;
 import org.jboss.logging.Logger;
 import io.quarkus.panache.common.Sort;
 import org.springframework.web.bind.annotation.*;
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
-import io.quarkus.hibernate.orm.panache.*;
+
 import javax.transaction.Transactional;
 import java.util.List;
 
 
-@RestController
-
-public class ExampleResource {
-    private static final Logger LOG = Logger.getLogger(ExampleResource.class);
+@RestController("/ar")
+public class ARResource {
+    private static final Logger LOG = Logger.getLogger(ARResource.class);
 
     @GetMapping("/hello")
     public String hello() {
