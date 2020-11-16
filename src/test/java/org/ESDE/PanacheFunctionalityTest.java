@@ -22,7 +22,7 @@ public class PanacheFunctionalityTest {
     @Test
     public void testCounting() {
         // Now let's specify the return value
-        PanacheMock.mock(RPerson.class);
+        PanacheMock.mock(ARPerson.class);
         Mockito.when(ARPerson.count()).thenReturn(23l);
         Assertions.assertEquals(23, ARPerson.count());
     }
