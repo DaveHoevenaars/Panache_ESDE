@@ -80,7 +80,7 @@ In the resources set the following values in the application.properties file:
 quarkus.datasource.url=jdbc:postgresql://localhost:5432/postgres
 quarkus.datasource.driver=org.postgresql.Driver
 quarkus.datasource.username=postgres
-quarkus.datasource.password=
+quarkus.datasource.password=<<your password (can be empty)>>
 quarkus.datasource.max-size=8
 quarkus.datasource.min-size=2
 quarkus.hibernate-orm.database.generation=drop-and-create
