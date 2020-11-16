@@ -75,41 +75,89 @@ Specify the Group and Artifact ID of your project.
 
 Download your project
 
+In the resources set the following values in the application.properties file:
+```
+quarkus.datasource.url=jdbc:postgresql://localhost:5432/postgres
+quarkus.datasource.driver=org.postgresql.Driver
+quarkus.datasource.username=postgres
+quarkus.datasource.password=Farcry123!
+quarkus.datasource.max-size=8
+quarkus.datasource.min-size=2
+quarkus.hibernate-orm.database.generation=drop-and-create
+quarkus.hibernate-orm.log.sql=true
+```
+
+
 ### Active Record Pattern
 
 In the project create a new Package called "active_record"
 
 Create a class called "ARPerson" with the following specs:
 ```
-@Entity
-public class ARPerson {
-  public String fname;
-  public String lname; 
-}
-```
-make it extend PanacheEntity
+import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import io.quarkus.panache.common.Parameters;
 
-Specify the following methods: 
-```
-public static List<ARPerson> getPersonByFirstName(String firstName){
-  return ARPerson.find("firstName",firstName).list();
+import javax.persistence.Entity;
+import java.util.List;
+
+@Entity(name = "arperson")
+public class ARPerson extends PanacheEntity {
+    public String firstname;
+    public String lastname;
+
+    public String getFirstname() {
+        return firstname;
+    }
+
+    public void setFirstname(String fname) {
+        this.firstname = fname;
+    }
+
+    public String getLastname() {
+        return lastname;
+    }
+
+    public void setLastname(String lname) {
+        this.lastname = lname;
+    }
+
+    public static List<ARPerson> getPersonByFirstName(String firstName){
+
+        return ARPerson.find("firstName",firstName).list();
+    }
+    // Note how you can map variables in your query to be able to do queries with multiple parameters
+    public static List<ARPerson> getPersonByFirstNameAndLastName(String firstName, String lastName){
+
+        return ARPerson.find("firstName = :fn and lastname = :ln", Parameters.with("fn",firstName)
+                .and("ln",lastName).map()).list();
+    }
 }
 
-public static List<ARPerson> getPersonByLastName(String lastName){
-  return ARPerson.find("firstName",firstName).list();
-}
-
-public static List<ARPerson> getPersonByFirstNameAndLastName(String firstName, String lastName){
-    return ARPerson.find("firstName = :fn and lastname = :ln", Parameters.with("fn",firstName).and("ln",lastName).map()).list();
-}
 ```
+Note that the entity class extends PanacheEntity!
 
-Modify the Example resource class to look like this:
+Create a class called ARResource and specify it like this:
+
 ```
+import org.ESDE.active_record.ARPerson;
+import org.jboss.logging.Logger;
+import io.quarkus.panache.common.Sort;
+import org.springframework.web.bind.annotation.*;
+
+import javax.transaction.Transactional;
+import java.util.List;
+
+
 @RestController
-public class ExampleResource {
-    private static final Logger LOG = Logger.getLogger(ExampleResource.class);
-    
+@RequestMapping("/ar")
+public class ARResource {
+    private static final Logger LOG = Logger.getLogger(ARResource.class);
+
+    @GetMapping("/hello")
+    public String hello() {
+        return "hello";
+    }
+
     @PostMapping("/person")
     @Transactional
     public void addPerson(ARPerson person)
@@ -122,7 +170,8 @@ public class ExampleResource {
     public List<ARPerson> getPeople()
     {
         LOG.info("Getting persons");
-        return ARPerson.listAll(Sort.by("firstName").and("lastName").ascending());
+        LOG.info(ARPerson.listAll());
+        return ARPerson.listAll();
     }
 
     @GetMapping("/persons/{id}")
@@ -144,13 +193,25 @@ public class ExampleResource {
 
     @GetMapping("/persons/name/{name}/{lname}")
     public List<ARPerson> getPersonWithFirstNameAndLastName(@PathVariable("name") String name, @PathVariable("lname") String lname) {
-        return Person.getPersonByFirstNameAndLastName(name,lname);
+        return ARPerson.getPersonByFirstNameAndLastName(name,lname);
     }
 }
 ```
+This class will function as our rest controller. The @RequestMapping("/ar") annotation specifies that the urls will all begin with "/ar/"
+The other methods will function as post and get mappings for the person entity.
+
+Start the program by running "mvn quarkus:dev" from your console
+
+Note that in your database schema a table called "arperson" has been created, with an id, firstname and lastname attribute.
 
 Play around with your program with postman!
-Send post requests by setting the body to :
+
+You can also filter your persons by specifying a key and a val
+```
+localhost:8080/ar/persons?key=firstname&val=Buster
+```
+
+Send post requests by setting the body of the request "localhost:8080/person" to:
 ```
 {
     "firstName": "YourFname",
@@ -161,5 +222,130 @@ Send post requests by setting the body to :
 ### Repository pattern
 Create another package called repository
 
-create A class called 
+in this package create A class called RPerson:
+
+```
+package org.ESDE.repository;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import java.util.List;
+
+@Entity(name = "rperson")
+public class RPerson {
+    public String firstname;
+    public String lastname;
+    public String id;
+
+    public String getFirstname() {
+        return firstname;
+    }
+
+    public void setFirstname(String firstname) {
+        this.firstname = firstname;
+    }
+
+    public String getLastname() {
+        return lastname;
+    }
+
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @Id
+    public String getId() {
+        return id;
+    }
+}
+```
+
+Note: This time the Entity class does not extend the PanacheEntity
+Instead, now a seperate class will be created. We will  name this one RPersonRepository:
+
+```package org.ESDE.repository;
+
+import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import io.quarkus.panache.common.Parameters;
+import org.ESDE.active_record.ARPerson;
+
+import javax.enterprise.context.ApplicationScoped;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@ApplicationScoped
+public class RPersonRepository implements PanacheRepository<RPerson> {
+
+    public List<RPerson> findByKeyVal(String key, String val) {
+        return find(key, val).list();
+    }
+
+    public List<RPerson> getPersonByFirstNameAndLastName(String firstName, String lastName){
+        return find("firstName = :fn and lastname = :ln", Parameters.with("fn",firstName)
+                .and("ln",lastName).map()).list();
+    }
+}
+```
+This class extends the PanacheRepository class and passes the RPerson class as a Generic. The class will be used to specify the Database calls.
+
+Finally, create a class called RResource. This class will be used as the rest interface to the RPerson entity:
+
+```
+package org.ESDE;
+
+import io.quarkus.panache.common.Sort;
+import org.ESDE.repository.RPerson;
+import org.ESDE.repository.RPersonRepository;
+import org.jboss.logging.Logger;
+import org.springframework.web.bind.annotation.*;
+
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import javax.ws.rs.PathParam;
+import java.util.List;
+
+@RestController
+@RequestMapping("/r")
+public class RResource {
+
+    private static final Logger LOG = Logger.getLogger(RResource.class);
+
+    @Inject
+    RPersonRepository personRepository;
+
+    @PostMapping("/person")
+    @Transactional
+    public void addPerson(RPerson person) {
+        LOG.info("Added person");
+        personRepository.persist(person);
+    }
+
+    @GetMapping(value = "/persons")
+    public List<RPerson> getPeopleByKeyVal(@RequestParam("key") String key,
+                                           @RequestParam("val") String val) {
+
+        LOG.info("Getting persons by " + key + ", search param: " + val);
+        if (key == null || val == null)
+            return personRepository.listAll(Sort.by("firstname").and("lastname").ascending());
+        else
+            return personRepository.findByKeyVal(key, val);
+    }
+
+    @GetMapping(value = "/persons/name/{name}/{lname}")
+    public List<RPerson> getPeopleByFirstName(@PathVariable("name") String name, @PathVariable("lname") String lname) {
+
+        LOG.info("Getting persons by " + name + " " + lname);
+        return personRepository.getPersonByFirstNameAndLastName(name, lname);
+    }
+}
+```
+
+Quarkus should automatically adapt the changes from the code, so a reboot of the application should not be necessary. You can now make calls to 
+"localhost:8080/r/* "
+
+Congratulations! You just created your first functional Panache application!
  
