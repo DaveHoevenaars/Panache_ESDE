@@ -2,6 +2,7 @@ package org.ESDE.active_record;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import io.quarkus.panache.common.Parameters;
+import org.ESDE.repository.RPerson;
 
 import javax.persistence.Entity;
 import java.util.List;
@@ -37,4 +38,9 @@ public class ARPerson extends PanacheEntity {
         return ARPerson.find("firstName = :fn and lastname = :ln", Parameters.with("fn",firstName)
                 .and("ln",lastName).map()).list();
     }
+
+    public static List<ARPerson> findByKeyVal(String key, String val) {
+        return ARPerson.find(key, val).list();
+    }
+
 }

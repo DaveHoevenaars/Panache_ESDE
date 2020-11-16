@@ -27,18 +27,15 @@ public class RResource {
         personRepository.persist(person);
     }
 
- /*  @GetMapping("/persons")
-   public List<RPerson> getPeople() {
-       LOG.info("Getting persons");
-       return personRepository.listAll(Sort.by("firstName").and("lastName").ascending());
-   }*/
-
     @GetMapping(value = "/persons")
     public List<RPerson> getPeopleByKeyVal(@RequestParam("key") String key,
                                            @RequestParam("val") String val) {
 
         LOG.info("Getting persons by " + key + ", search param: " + val);
-        return personRepository.findByKeyVal(key, val);
+        if (key == null || val == null)
+            return personRepository.listAll(Sort.by("firstname").and("lastname").ascending());
+        else
+            return personRepository.findByKeyVal(key, val);
     }
 
     @GetMapping(value = "/persons/name/{name}/{lname}")

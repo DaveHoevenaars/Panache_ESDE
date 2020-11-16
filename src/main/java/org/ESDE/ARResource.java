@@ -1,5 +1,6 @@
 package org.ESDE;
 import org.ESDE.active_record.ARPerson;
+import org.ESDE.repository.RPerson;
 import org.jboss.logging.Logger;
 import io.quarkus.panache.common.Sort;
 import org.springframework.web.bind.annotation.*;
@@ -26,12 +27,15 @@ public class ARResource {
         ARPerson.persist(person);
     }
 
-    @GetMapping("/persons")
-    public List<ARPerson> getPeople()
-    {
-        LOG.info("Getting persons");
-        LOG.info(ARPerson.listAll());
-        return ARPerson.listAll();
+    @GetMapping(value = "/persons")
+    public List<ARPerson> getPeopleByKeyVal(@RequestParam("key") String key,
+                                           @RequestParam("val") String val) {
+
+        LOG.info("Getting persons by " + key + ", search param: " + val);
+        if (key == null || val == null)
+            return ARPerson.listAll(Sort.by("firstname").and("lastname").ascending());
+        else
+            return ARPerson.findByKeyVal(key, val);
     }
 
     @GetMapping("/persons/{id}")
