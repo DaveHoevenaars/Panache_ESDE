@@ -3,11 +3,29 @@ package org.ESDE.active_record;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import io.quarkus.panache.common.Parameters;
 
+import javax.persistence.Entity;
 import java.util.List;
 
+@Entity(name = "arperson")
 public class ARPerson extends PanacheEntity {
-    public String fname;
-    public String lname;
+    public String firstname;
+    public String lastname;
+
+    public String getFirstname() {
+        return firstname;
+    }
+
+    public void setFirstname(String fname) {
+        this.firstname = fname;
+    }
+
+    public String getLastname() {
+        return lastname;
+    }
+
+    public void setLastname(String lname) {
+        this.lastname = lname;
+    }
 
     public static List<ARPerson> getPersonByFirstName(String firstName){
 
