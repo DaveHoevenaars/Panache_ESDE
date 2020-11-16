@@ -29,6 +29,41 @@ You can then execute your native executable with: `./target/panache_final-1.0.0-
 
 If you want to learn more about building native executables, please consult https://quarkus.io/guides/building-native-image.
 
+## Setting up (pgAdmin4) db management
+
+For easy Database creation download pgAdmin4 at: https://www.pgadmin.org/download/
+If you havent already create a server group and a database named postgres with the fields: (int id, varchar firstname, varchar lastname)
+You can do so by executing this statement: 
+
+create table person
+(
+    id        integer,
+    firstname varchar(20),
+    lastname  varchar(20)
+);
+
+alter table person
+    owner to postgres;
+    
+## Setup Postgress db 
+
+Go to https://www.postgresql.org/download/ 
+And install postgres
+
+1. In the Database tool window (View | Tool Windows | Database), click the Data Source Properties icon The Data Source Properties icon.
+
+2. In the Data Sources and Drivers dialog, click the Add icon (+) and select PostgreSQL.
+3. At the bottom of the data source settings area, click the Download missing driver files link. Alternatively, you can specify user drivers for the data source. For more information about user drivers, see Add a user driver to an existing connection.
+
+4. Specify database connection details. 
+Name: PostgreSQL - postgres@localhost
+Host: localhost
+Port: 5432
+User: postgres
+Password: N/A
+database: postgres
+URL: jdbc:postgresql://localhost:5432/postgres
+
 ## Exercises
 Go to https://code.quarkus.io/
 Select the following dependencies:
