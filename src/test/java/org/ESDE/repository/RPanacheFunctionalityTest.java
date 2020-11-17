@@ -17,7 +17,8 @@ public class RPanacheFunctionalityTest {
     @Test
     public void testPanacheMocking() {
         // Mocked classes always return a default value
-        Assertions.assertEquals(4, personRepository.count());
+        Mockito.when(personRepository.count()).thenCallRealMethod();
+        Assertions.assertEquals(6, personRepository.count());
     }
     @Test
     public void testCounting() {

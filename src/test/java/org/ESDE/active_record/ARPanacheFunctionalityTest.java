@@ -17,7 +17,7 @@ public class ARPanacheFunctionalityTest {
         // Mocked classes always return a default value
         PanacheMock.mock(ARPerson.class);
         Mockito.when(ARPerson.count()).thenCallRealMethod();
-        Assertions.assertEquals(4, ARPerson.count());
+        Assertions.assertEquals(6, ARPerson.count());
     }
     @Test
     public void testCounting() {
