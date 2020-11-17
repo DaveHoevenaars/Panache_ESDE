@@ -6,7 +6,11 @@ import io.quarkus.test.junit.mockito.InjectMock;
 import org.ESDE.repository.RPerson;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyObject;
 
 
 @QuarkusTest
@@ -17,7 +21,8 @@ public class RPanacheFunctionalityTest {
     @Test
     public void testPanacheMocking() {
         // Mocked classes always return a default value
-        Assertions.assertEquals(4, personRepository.count());
+        Mockito.when(personRepository.count()).thenCallRealMethod();
+        Assertions.assertEquals(6, personRepository.count());
     }
     @Test
     public void testCounting() {
@@ -25,5 +30,16 @@ public class RPanacheFunctionalityTest {
         Mockito.when(personRepository.count()).thenReturn(23l);
         Assertions.assertEquals(23, personRepository.count());
     }
+
+    @Test
+    public void testGetByLname() {
+        String lname = "lastname";
+        String name = "Funke";
+        Mockito.when(personRepository.findByKeyVal(any(), any())).thenCallRealMethod();
+        Mockito.when(personRepository.find(lname, name)).thenCallRealMethod();
+        Assertions.assertEquals(2, personRepository.findByKeyVal(lname, name).size());
+    }
+
+
     //ToDo: test for filtering localhost:8080/ar/persons?key=lastname&val=Funke
 }
