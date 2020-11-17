@@ -64,7 +64,7 @@ Password: N/A
 database: postgres
 URL: jdbc:postgresql://localhost:5432/postgres
 
-## Exercises
+## Setting up the project:
 Go to https://code.quarkus.io/
 Select the following dependencies:
 - Quarkus extension for Spring Web API
@@ -80,13 +80,14 @@ In the resources set the following values in the application.properties file:
 quarkus.datasource.url=jdbc:postgresql://localhost:5432/postgres
 quarkus.datasource.driver=org.postgresql.Driver
 quarkus.datasource.username=postgres
-quarkus.datasource.password=Farcry123!
+quarkus.datasource.password=<<your password (can be empty)>>
 quarkus.datasource.max-size=8
 quarkus.datasource.min-size=2
 quarkus.hibernate-orm.database.generation=drop-and-create
 quarkus.hibernate-orm.log.sql=true
 ```
 
+Create a file called "import.sql" in your resources.
 
 ### Active Record Pattern
 
@@ -199,6 +200,17 @@ public class ARResource {
 ```
 This class will function as our rest controller. The @RequestMapping("/ar") annotation specifies that the urls will all begin with "/ar/"
 The other methods will function as post and get mappings for the person entity.
+
+add the following insert statements to your "import.sql" file, so you have some test data:
+
+```
+INSERT INTO arperson (id, firstname, lastname) VALUES (nextVal('hibernate_sequence'), 'George', 'Bluth');
+INSERT INTO arperson (id, firstname, lastname) VALUES (nextVal('hibernate_sequence'), 'Michael', 'Bluth');
+INSERT INTO arperson (id, firstname, lastname) VALUES (nextVal('hibernate_sequence'), 'Gob', 'Bluth');
+INSERT INTO arperson (id, firstname, lastname) VALUES (nextVal('hibernate_sequence'), 'Buster', 'Bluth');
+INSERT INTO arperson (id, firstname, lastname) VALUES (nextVal('hibernate_sequence'), 'Funke', 'Tobias');
+INSERT INTO arperson (id, firstname, lastname) VALUES (nextVal('hibernate_sequence'), 'Funke', 'Lindsay ');
+```
 
 Start the program by running "mvn quarkus:dev" from your console
 
@@ -344,6 +356,17 @@ public class RResource {
 }
 ```
 
+alter the import.sql again and add the following insert statement to the existing ones:
+
+```
+INSERT INTO rperson (id, firstname, lastname) VALUES (nextVal('hibernate_sequence'), 'George', 'Bluth');
+INSERT INTO rperson (id, firstname, lastname) VALUES (nextVal('hibernate_sequence'), 'Michael', 'Bluth');
+INSERT INTO rperson (id, firstname, lastname) VALUES (nextVal('hibernate_sequence'), 'Gob', 'Bluth');
+INSERT INTO rperson (id, firstname, lastname) VALUES (nextVal('hibernate_sequence'), 'Buster', 'Bluth');
+INSERT INTO rperson (id, firstname, lastname) VALUES (nextVal('hibernate_sequence'), 'Funke', 'Tobias');
+INSERT INTO rperson (id, firstname, lastname) VALUES (nextVal('hibernate_sequence'), 'Funke', 'lindsay ');
+
+```
 Quarkus should automatically adapt the changes from the code, so a reboot of the application should not be necessary. You can now make calls to 
 "localhost:8080/r/* "
 
