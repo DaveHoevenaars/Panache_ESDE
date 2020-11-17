@@ -29,7 +29,6 @@ public class ARPerson extends PanacheEntity {
     }
 
     public static List<ARPerson> getPersonByFirstName(String firstName){
-
         return ARPerson.find("firstName",firstName).list();
     }
     // Note how you can map variables in your query to be able to do queries with multiple parameters
