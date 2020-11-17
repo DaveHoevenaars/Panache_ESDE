@@ -29,6 +29,31 @@ You can then execute your native executable with: `./target/panache_final-1.0.0-
 
 If you want to learn more about building native executables, please consult https://quarkus.io/guides/building-native-image.
 
+## Setting up the project:
+Go to https://code.quarkus.io/
+Select the following dependencies:
+- Quarkus extension for Spring Web API
+- Hibernate ORM with Panache
+- JDBC driver - H2
+
+Specify the Group and Artifact ID of your project.
+
+Download your project
+
+In the resources set the following values in the application.properties file:
+```
+quarkus.datasource.url=jdbc:postgresql://localhost:5432/postgres
+quarkus.datasource.driver=org.postgresql.Driver
+quarkus.datasource.username=postgres
+quarkus.datasource.password=<<your password (can be empty)>>
+quarkus.datasource.max-size=8
+quarkus.datasource.min-size=2
+quarkus.hibernate-orm.database.generation=drop-and-create
+quarkus.hibernate-orm.log.sql=true
+```
+
+Create a file called "import.sql" in your resources.
+
 ## Setting up (pgAdmin4) db management
 
 For easy Database creation download pgAdmin4 at: https://www.pgadmin.org/download/
@@ -63,31 +88,6 @@ User: postgres
 Password: N/A
 database: postgres
 URL: jdbc:postgresql://localhost:5432/postgres
-
-## Setting up the project:
-Go to https://code.quarkus.io/
-Select the following dependencies:
-- Quarkus extension for Spring Web API
-- Hibernate ORM with Panache
-- JDBC driver - H2
-
-Specify the Group and Artifact ID of your project.
-
-Download your project
-
-In the resources set the following values in the application.properties file:
-```
-quarkus.datasource.url=jdbc:postgresql://localhost:5432/postgres
-quarkus.datasource.driver=org.postgresql.Driver
-quarkus.datasource.username=postgres
-quarkus.datasource.password=<<your password (can be empty)>>
-quarkus.datasource.max-size=8
-quarkus.datasource.min-size=2
-quarkus.hibernate-orm.database.generation=drop-and-create
-quarkus.hibernate-orm.log.sql=true
-```
-
-Create a file called "import.sql" in your resources.
 
 ### Active Record Pattern
 
