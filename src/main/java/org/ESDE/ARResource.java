@@ -1,6 +1,5 @@
 package org.ESDE;
 import org.ESDE.active_record.ARPerson;
-import org.ESDE.repository.RPerson;
 import org.jboss.logging.Logger;
 import io.quarkus.panache.common.Sort;
 import org.springframework.web.bind.annotation.*;
@@ -50,9 +49,9 @@ public class ARResource {
         ARPerson.delete("id",id);
     }
 
-    @GetMapping("/persons/name/{name}")
+    @GetMapping("/persons/lastname/{name}")
     public List<ARPerson> getPersonWithFirstname(@PathVariable("name") String name) {
-        return ARPerson.getPersonByFirstName(name);
+        return ARPerson.getPersonByLname(name);
     }
 
     @GetMapping("/persons/name/{name}/{lname}")

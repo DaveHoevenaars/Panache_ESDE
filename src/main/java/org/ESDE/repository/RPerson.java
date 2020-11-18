@@ -2,6 +2,9 @@ package org.ESDE.repository;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.xml.namespace.QName;
 import java.util.List;
 
 @Entity(name = "rperson")

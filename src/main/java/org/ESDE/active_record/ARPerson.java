@@ -2,12 +2,14 @@ package org.ESDE.active_record;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import io.quarkus.panache.common.Parameters;
-import org.ESDE.repository.RPerson;
+import io.quarkus.panache.common.Sort;
 
 import javax.persistence.Entity;
+import javax.persistence.NamedQuery;
 import java.util.List;
 
 @Entity(name = "arperson")
+@NamedQuery(name = "ARPerson.getByLastname", query = "from arperson where lastname = :lastname")
 public class ARPerson extends PanacheEntity {
     public String firstname;
     public String lastname;
@@ -42,4 +44,8 @@ public class ARPerson extends PanacheEntity {
         return ARPerson.find(key, val).list();
     }
 
+    public static List<ARPerson> getPersonByLname(String lastname) {
+        System.out.println("Getting person by lname: " + lastname);
+        return find("#ARPerson.getByLastname", Sort.by("firstname").ascending().and("lastname").ascending(), Parameters.with("lastname", lastname)).list();
+    }
 }
