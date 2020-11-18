@@ -29,6 +29,31 @@ You can then execute your native executable with: `./target/panache_final-1.0.0-
 
 If you want to learn more about building native executables, please consult https://quarkus.io/guides/building-native-image.
 
+## Setting up the project:
+Go to https://code.quarkus.io/
+Select the following dependencies:
+- Quarkus extension for Spring Web API
+- Hibernate ORM with Panache
+- JDBC driver - H2
+
+Specify the Group and Artifact ID of your project.
+
+Download your project
+
+In the resources set the following values in the application.properties file:
+```
+quarkus.datasource.url=jdbc:postgresql://localhost:5432/postgres
+quarkus.datasource.driver=org.postgresql.Driver
+quarkus.datasource.username=postgres
+quarkus.datasource.password=<<your password (can be empty)>>
+quarkus.datasource.max-size=8
+quarkus.datasource.min-size=2
+quarkus.hibernate-orm.database.generation=drop-and-create
+quarkus.hibernate-orm.log.sql=true
+```
+
+Create a file called "import.sql" in your resources.
+
 ## Setting up (pgAdmin4) db management
 
 For easy Database creation download pgAdmin4 at: https://www.pgadmin.org/download/
@@ -64,31 +89,6 @@ Password: N/A
 database: postgres
 URL: jdbc:postgresql://localhost:5432/postgres
 
-## Setting up the project:
-Go to https://code.quarkus.io/
-Select the following dependencies:
-- Quarkus extension for Spring Web API
-- Hibernate ORM with Panache
-- JDBC driver - H2
-
-Specify the Group and Artifact ID of your project.
-
-Download your project
-
-In the resources set the following values in the application.properties file:
-```
-quarkus.datasource.url=jdbc:postgresql://localhost:5432/postgres
-quarkus.datasource.driver=org.postgresql.Driver
-quarkus.datasource.username=postgres
-quarkus.datasource.password=<<your password (can be empty)>>
-quarkus.datasource.max-size=8
-quarkus.datasource.min-size=2
-quarkus.hibernate-orm.database.generation=drop-and-create
-quarkus.hibernate-orm.log.sql=true
-```
-
-Create a file called "import.sql" in your resources.
-
 ### Active Record Pattern
 
 In the project create a new Package called "active_record"
@@ -97,6 +97,7 @@ Create a class called "ARPerson" with the following specs:
 ```
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import io.quarkus.panache.common.Parameters;
+import org.ESDE.repository.RPerson;
 
 import javax.persistence.Entity;
 import java.util.List;
@@ -123,7 +124,6 @@ public class ARPerson extends PanacheEntity {
     }
 
     public static List<ARPerson> getPersonByFirstName(String firstName){
-
         return ARPerson.find("firstName",firstName).list();
     }
     // Note how you can map variables in your query to be able to do queries with multiple parameters
@@ -132,8 +132,12 @@ public class ARPerson extends PanacheEntity {
         return ARPerson.find("firstName = :fn and lastname = :ln", Parameters.with("fn",firstName)
                 .and("ln",lastName).map()).list();
     }
-}
 
+    public static List<ARPerson> findByKeyVal(String key, String val) {
+        return ARPerson.find(key, val).list();
+    }
+
+}
 ```
 Note that the entity class extends PanacheEntity!
 
@@ -141,6 +145,7 @@ Create a class called ARResource and specify it like this:
 
 ```
 import org.ESDE.active_record.ARPerson;
+import org.ESDE.repository.RPerson;
 import org.jboss.logging.Logger;
 import io.quarkus.panache.common.Sort;
 import org.springframework.web.bind.annotation.*;
@@ -167,12 +172,15 @@ public class ARResource {
         ARPerson.persist(person);
     }
 
-    @GetMapping("/persons")
-    public List<ARPerson> getPeople()
-    {
-        LOG.info("Getting persons");
-        LOG.info(ARPerson.listAll());
-        return ARPerson.listAll();
+    @GetMapping(value = "/persons")
+    public List<ARPerson> getPeopleByKeyVal(@RequestParam("key") String key,
+                                           @RequestParam("val") String val) {
+
+        LOG.info("Getting persons by " + key + ", search param: " + val);
+        if (key == null || val == null)
+            return ARPerson.listAll(Sort.by("firstname").and("lastname").ascending());
+        else
+            return ARPerson.findByKeyVal(key, val);
     }
 
     @GetMapping("/persons/{id}")
@@ -208,11 +216,26 @@ INSERT INTO arperson (id, firstname, lastname) VALUES (nextVal('hibernate_sequen
 INSERT INTO arperson (id, firstname, lastname) VALUES (nextVal('hibernate_sequence'), 'Michael', 'Bluth');
 INSERT INTO arperson (id, firstname, lastname) VALUES (nextVal('hibernate_sequence'), 'Gob', 'Bluth');
 INSERT INTO arperson (id, firstname, lastname) VALUES (nextVal('hibernate_sequence'), 'Buster', 'Bluth');
-INSERT INTO arperson (id, firstname, lastname) VALUES (nextVal('hibernate_sequence'), 'Funke', 'Tobias');
-INSERT INTO arperson (id, firstname, lastname) VALUES (nextVal('hibernate_sequence'), 'Funke', 'Lindsay ');
+INSERT INTO arperson (id, firstname, lastname) VALUES (nextVal('hibernate_sequence'), 'Tobias', 'Funke');
+INSERT INTO arperson (id, firstname, lastname) VALUES (nextVal('hibernate_sequence'), 'Lindsay', 'Funke');
 ```
 
 Start the program by running "mvn quarkus:dev" from your console
+
+Should errors arise after building, change properties in the pom file to:
+```
+    <compiler-plugin.version>3.8.1</compiler-plugin.version>
+    <maven.compiler.parameters>true</maven.compiler.parameters>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <quarkus-plugin.version>1.7.3.Final</quarkus-plugin.version>
+    <quarkus.platform.artifact-id>quarkus-universe-bom</quarkus.platform.artifact-id>
+    <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
+    <quarkus.platform.version>1.7.3.Final</quarkus.platform.version>
+    <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
+```
 
 Note that in your database schema a table called "arperson" has been created, with an id, firstname and lastname attribute.
 
@@ -238,6 +261,7 @@ in this package create A class called RPerson:
 
 ```
 package org.ESDE.repository;
+
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -279,15 +303,14 @@ public class RPerson {
 Note: This time the Entity class does not extend the PanacheEntity
 Instead, now a seperate class will be created. We will  name this one RPersonRepository:
 
-```package org.ESDE.repository;
+```
+package org.ESDE.repository;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Parameters;
-import org.ESDE.active_record.ARPerson;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class RPersonRepository implements PanacheRepository<RPerson> {
@@ -299,6 +322,10 @@ public class RPersonRepository implements PanacheRepository<RPerson> {
     public List<RPerson> getPersonByFirstNameAndLastName(String firstName, String lastName){
         return find("firstName = :fn and lastname = :ln", Parameters.with("fn",firstName)
                 .and("ln",lastName).map()).list();
+    }
+
+    public List<RPerson> getPersonWSalarayabove(double salary) {
+        return find("salary > :s", Parameters.with(":s", salary)).list();
     }
 }
 ```
@@ -363,8 +390,8 @@ INSERT INTO rperson (id, firstname, lastname) VALUES (nextVal('hibernate_sequenc
 INSERT INTO rperson (id, firstname, lastname) VALUES (nextVal('hibernate_sequence'), 'Michael', 'Bluth');
 INSERT INTO rperson (id, firstname, lastname) VALUES (nextVal('hibernate_sequence'), 'Gob', 'Bluth');
 INSERT INTO rperson (id, firstname, lastname) VALUES (nextVal('hibernate_sequence'), 'Buster', 'Bluth');
-INSERT INTO rperson (id, firstname, lastname) VALUES (nextVal('hibernate_sequence'), 'Funke', 'Tobias');
-INSERT INTO rperson (id, firstname, lastname) VALUES (nextVal('hibernate_sequence'), 'Funke', 'lindsay ');
+INSERT INTO rperson (id, firstname, lastname) VALUES (nextVal('hibernate_sequence'), 'Tobias', 'Funke');
+INSERT INTO rperson (id, firstname, lastname) VALUES (nextVal('hibernate_sequence'), 'Lindsay', 'Funke');
 
 ```
 Quarkus should automatically adapt the changes from the code, so a reboot of the application should not be necessary. You can now make calls to 
