@@ -29,7 +29,7 @@ You can then execute your native executable with: `./target/panache_final-1.0.0-
 
 If you want to learn more about building native executables, please consult https://quarkus.io/guides/building-native-image.
 
-## Setting up the project:
+## 1 Setting up the project:
 Go to https://code.quarkus.io/
 Select the following dependencies:
 - Quarkus extension for Spring Web API
@@ -54,7 +54,7 @@ quarkus.hibernate-orm.log.sql=true
 
 Create a file called "import.sql" in your resources.
 
-## Setting up (pgAdmin4) db management
+## 2 Setting up (pgAdmin4) db management
 
 For easy Database creation download pgAdmin4 at: https://www.pgadmin.org/download/
 If you havent already create a server group and a database named postgres with the fields: (int id, varchar firstname, varchar lastname)
@@ -70,7 +70,7 @@ create table person
 alter table person
     owner to postgres;
     
-## Setup Postgress db 
+## 3 Setup Postgress db 
 
 Go to https://www.postgresql.org/download/ 
 And install postgres
@@ -89,7 +89,7 @@ Password: N/A
 database: postgres
 URL: jdbc:postgresql://localhost:5432/postgres
 
-### Active Record Pattern
+### 4 Active Record Pattern
 
 In the project create a new Package called "active_record"
 
@@ -254,7 +254,7 @@ Send post requests by setting the body of the request "localhost:8080/person" to
 }
 ```
 
-### Repository pattern
+### 5 Repository pattern
 Create another package called repository
 
 in this package create A class called RPerson:
